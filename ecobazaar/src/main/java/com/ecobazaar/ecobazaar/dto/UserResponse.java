@@ -1,9 +1,7 @@
 package com.ecobazaar.ecobazaar.dto;
 
-import lombok.AllArgsConstructor;
-
 public class UserResponse {
-
+	
 	private Long id;
 	
 	private String name;
@@ -14,13 +12,13 @@ public class UserResponse {
 	
 	private Integer ecoScore;
 	
-    public UserResponse(Long id, String name, String email, String role, Integer ecoScore) {
-        this.id = id;
-        this.name = name;
-        this.email = email;
-        this.role = role;
-        this.ecoScore = ecoScore;
-    }
+	public UserResponse(Long id, String name, String email, String role, Integer ecoScore) {
+		this.id = id;
+		this.name = name;
+		this.email = email;
+		this.role = role;
+		this.ecoScore = ecoScore;
+	}
 
 	public Long getId() {
 		return id;
