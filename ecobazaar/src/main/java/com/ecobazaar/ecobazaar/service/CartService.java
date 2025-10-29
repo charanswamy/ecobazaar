@@ -40,7 +40,6 @@ public class CartService {
             totalPrice += product.getPrice() * item.getQuantity();
             totalCarbon += product.getCarbonImpact() * item.getQuantity();
 
-            //commit check
             if (Boolean.FALSE.equals(product.getEcoCertified())) {
                 String[] words = product.getName().split(" ");
                 String keyword = words[words.length - 1].replaceAll("[^a-zA-Z]", ""); 

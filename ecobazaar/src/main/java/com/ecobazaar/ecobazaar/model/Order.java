@@ -74,8 +74,4 @@ public class Order {
 	public void setTotalCarbon(double totalCarbon) {
 		this.totalCarbon = totalCarbon;
 	}
-	
-	
-	
-	
 }

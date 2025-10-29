@@ -23,7 +23,6 @@ public class UserReportController {
     @GetMapping("/user/{id}")
     public UserReport getUserReport(@PathVariable Long id) {
     	return userReportService.getUserReport(id);
+    	
     }
-
-
 }
