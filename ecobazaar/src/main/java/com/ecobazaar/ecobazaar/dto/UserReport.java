@@ -73,6 +73,7 @@ public class UserReport {
 
 	public void setEcoBadge(String ecoBadge) {
 		this.ecoBadge = ecoBadge;
-		
 	}
+	
+	
 }
