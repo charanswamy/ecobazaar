@@ -10,6 +10,8 @@ import com.ecobazaar.ecobazaar.model.User;
 import com.ecobazaar.ecobazaar.repository.UserRepository;
 
 // commit
+
+// edit commit
 @Configuration
 public class DataLoader {
 	
