@@ -1,0 +1,129 @@
+<div class="min-h-screen bg-gradient-to-br from-emerald-50 via-green-50 to-teal-50 
+                relative overflow-hidden py-10 px-4">
+
+  <!-- Floating Eco Orbs -->
+  <div class="absolute inset-0 -z-10 pointer-events-none">
+    <div class="absolute top-10 -left-20 w-72 h-72 bg-emerald-400/25 rounded-full blur-3xl animate-pulse"></div>
+    <div class="absolute bottom-0 right-0 w-60 h-60 bg-teal-500/20 rounded-full blur-3xl animate-pulse delay-1000"></div>
+    <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 
+                w-52 h-52 bg-lime-400/15 rounded-full blur-3xl animate-pulse delay-500"></div>
+  </div>
+
+  <div class="max-w-6xl mx-auto">
+
+    <!-- Loading -->
+    <div *ngIf="loading" class="text-center py-20">
+      <div class="inline-block animate-spin rounded-full h-16 w-16 border-4 border-emerald-500 border-t-transparent"></div>
+      <p class="mt-6 text-xl text-gray-600">Loading product details...</p>
+    </div>
+
+    <!-- Error -->
+    <div *ngIf="error && !loading" class="text-center py-20">
+      <p class="text-2xl font-bold text-red-600 mb-4">{{ error }}</p>
+      <button (click)="goBack()" class="px-8 py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl shadow-xl transition">
+        Back to Products
+      </button>
+    </div>
+
+    <!-- Product Detail -->
+    <div *ngIf="product && !loading" class="grid lg:grid-cols-2 gap-8 items-start">
+
+      <!-- Image -->
+      <div class="relative">
+        <div class="rounded-2xl overflow-hidden shadow-xl bg-white/90 backdrop-blur-xl border border-emerald-100">
+          <img 
+            [src]="product.imageUrl || 'assets/placeholder.png'"
+            [alt]="product.name"
+            class="w-full h-72 md:h-80 object-cover transition-transform duration-700" />
+        </div>
+
+        <!-- SMALLER ECO BADGE -->
+        <div *ngIf="product.ecoCertified"
+             class="absolute top-4 left-4 bg-emerald-600 text-white px-4 py-2 rounded-full text-sm font-bold shadow-xl flex items-center gap-2 animate-pulse">
+          Certified
+        </div>
+      </div>
+
+      <!-- Product Info -->
+      <div class="space-y-6">
+
+        <div>
+          <h1 class="text-3xl md:text-4xl font-extrabold bg-gradient-to-r from-emerald-600 to-teal-600 
+                       bg-clip-text text-transparent">
+            {{ product.name }}
+          </h1>
+
+          <p class="mt-3 text-lg text-gray-700 leading-relaxed">
+            {{ product.details || 'A consciously crafted, planet-friendly product.' }}
+          </p>
+        </div>
+
+        <!-- PRICE + CARBON BOX (SMALLER) -->
+        <div class="flex items-center gap-4">
+          <p class="text-3xl font-black text-emerald-600">
+            ₹{{ product.price | number:'1.0-0' }}
+          </p>
+
+          <div *ngIf="product.carbonImpact != null"
+               class="flex items-center gap-2 bg-emerald-50 px-4 py-3 rounded-xl border border-emerald-200">
+            <span class="text-xl">CO₂</span>
+            <div>
+              <p class="text-lg font-bold text-emerald-700">{{ product.carbonImpact }} kg</p>
+              <p class="text-xs text-emerald-600">per unit</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Eco Benefits Box -->
+        <div *ngIf="product.ecoCertified"
+             class="bg-gradient-to-r from-emerald-50 to-teal-50 p-6 rounded-2xl border border-emerald-200">
+          <h3 class="text-xl font-bold text-emerald-700 mb-3">Eco Benefits</h3>
+          <ul class="space-y-2 text-gray-700 text-sm">
+            <li>✔ Low-carbon production</li>
+            <li>✔ Sustainable materials</li>
+            <li>✔ Supports reforestation</li>
+          </ul>
+        </div>
+
+        <!-- Add to Cart -->
+        <div class="flex items-center gap-4 pt-4">
+          <div class="flex items-center gap-3">
+            <label class="text-base font-semibold text-gray-700">Qty:</label>
+            <input type="number" [(ngModel)]="qty" min="1" max="99"
+                   class="w-16 px-3 py-2 text-lg font-bold text-center rounded-xl border-2 border-emerald-200 bg-white 
+                          focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/30 outline-none transition-all" />
+          </div>
+
+          <button 
+            (click)="addToCart()"
+            [disabled]="added || qty < 1"
+            class="flex-1 py-4 px-6 text-lg font-bold text-white rounded-xl 
+                   bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700
+                   disabled:opacity-70 disabled:cursor-not-allowed
+                   shadow-xl hover:shadow-2xl transition-all duration-300 
+                   flex items-center justify-center gap-3">
+
+            <svg *ngIf="!added" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                    d="M3 3h2l.4 2M7 13h10l4-8H5.4m0 0L7 13m0 0l-1.5 6m1.5-6h10m-10 6h10" />
+            </svg>
+
+            <span>{{ added ? 'Added' : 'Add to Cart' }}</span>
+
+            <svg *ngIf="added" class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+            </svg>
+          </button>
+        </div>
+
+        <!-- Back Link -->
+        <div class="pt-6">
+          <button (click)="goBack()" class="text-emerald-600 font-semibold text-base hover:underline flex items-center gap-1">
+            ← Back to Products
+          </button>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>

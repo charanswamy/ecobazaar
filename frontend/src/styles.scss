@@ -1,0 +1,389 @@
+/* --------------------------------------------------------
+   ANGULAR MATERIAL THEME
+-------------------------------------------------------- */
+@use '@angular/material' as mat;
+@use "tailwindcss";
+
+html {
+  @include mat.theme((
+    color: (
+      primary: mat.$azure-palette,
+      tertiary: mat.$blue-palette,
+    ),
+    typography: Roboto,
+    density: 0,
+  ));
+}
+
+/* --------------------------------------------------------
+   BASE
+-------------------------------------------------------- */
+html, body {
+  height: 100%;
+  font-family: Roboto, "Helvetica Neue", sans-serif;
+}
+
+/* IMPORTANT: use inherit so page-level backgrounds (body.*) can show */
+body {
+  color-scheme: light;
+  background-color: inherit !important;   /* changed: avoid forcing transparent/white */
+  color: var(--mat-sys-on-surface);
+  font: var(--mat-sys-body-medium);
+  margin: 0;
+  transition: background-color .25s ease, color .25s ease;
+}
+
+/* --------------------------------------------------------
+   DARK MODE
+-------------------------------------------------------- */
+html[data-theme="dark"] {
+  @include mat.theme((
+    color: (
+      primary: mat.$azure-palette,
+      tertiary: mat.$blue-palette,
+    ),
+    typography: Roboto,
+    density: 0,
+    theme-type: dark,
+  ));
+}
+
+html[data-theme="dark"] body {
+  color-scheme: dark;
+}
+
+/* --------------------------------------------------------
+   GLASS LANDING BACKGROUND (HOME PAGE)
+-------------------------------------------------------- */
+body.landing-bg {
+  background-color: transparent !important;
+  background-image: url('https://images.unsplash.com/photo-1469474968028-56623f02e42e?auto=format&fit=crop&w=1920&q=90');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+}
+
+/* --------------------------------------------------------
+   GLASS NAVBAR
+-------------------------------------------------------- */
+
+/* Stronger glass when body.landing-navbar is present */
+body.landing-navbar app-navbar mat-toolbar.glass-nav {
+  background: rgba(255, 255, 255, 0.14) !important;
+  backdrop-filter: blur(14px) saturate(180%);
+  -webkit-backdrop-filter: blur(14px) saturate(180%);
+  box-shadow: 0 4px 18px rgba(0, 0, 0, .25) !important;
+}
+
+/* Glass navbar everywhere */
+app-navbar mat-toolbar.glass-nav {
+  background: rgba(255, 255, 255, 0.10) !important;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+app-navbar mat-toolbar.glass-nav * {
+  color: black !important;
+}
+
+html[data-theme="dark"] app-navbar mat-toolbar.glass-nav * {
+  color: white !important;
+}
+
+/* --------------------------------------------------------
+   FOOTER
+-------------------------------------------------------- */
+.footer-default {
+  width: 100%;
+  text-align: center;
+  padding: 18px 0;
+  background: rgba(0,0,0,.55);
+  backdrop-filter: blur(8px);
+  color: #eaeaea;
+  font-size: 15px;
+  margin: 0; /* ensure footer itself doesn't add unexpected gap */
+}
+
+/* --------------------------------------------------------
+   PAGE LAYOUT
+   NOTE: changed to avoid forcing footer gap
+-------------------------------------------------------- */
+/* Make page-container not force a 100vh block (fix gap above footer) */
+.page-container {
+  display: flex;
+  flex-direction: column;
+  min-height: auto !important; /* changed from 100vh to auto so content height is natural */
+  background: transparent !important;
+}
+
+/* Ensure page-content grows but does not push footer artificially */
+.page-content {
+  flex: 1 0 auto; /* allow it to grow but not force footer away */
+  background: transparent !important;
+  margin: 0;
+  padding-bottom: 0; /* prevent extra spacing before footer */
+}
+
+/* Safety: avoid last-child bottom margins causing gap above footer */
+.page-content > *:last-child {
+  margin-bottom: 0 !important;
+  padding-bottom: 0 !important;
+}
+
+/* ---------- USER ---------- */
+/* Keep the user body gradient on the <body> element so it always sits behind content */
+body.user-page {
+  background: linear-gradient(135deg, #4caf50 0%, #43a047 50%, #2e7d32 100%) !important;
+  background-attachment: fixed;
+  background-size: cover;
+  background-repeat: no-repeat;
+}
+
+/* ---------- ADMIN ---------- */
+body.admin-page {
+  background: linear-gradient(135deg, #ff9a1f, #f6b46a, #e98a3c);
+}
+
+/* ---------- SELLER ---------- */
+body.seller-page {
+  background: linear-gradient(135deg, #1b69c3, #9ac7ff, #5a9dff);
+}
+body.seller-page .page-content {
+  background: #5a98db !important;
+}
+
+/* --------------------------------------------------------
+   Quick utility: biscuit background class for inner wrappers
+   Use this on the element that should show biscuit color (you already add class on dashboard wrapper)
+-------------------------------------------------------- */
+.biscuit-bg {
+  background: #f4e9d8 !important; /* warm biscuit color */
+  background-clip: border-box;
+}
+
+/* also provide user-dashboard-bg alias (some templates use this) */
+.user-dashboard-bg {
+  background: #f4e9d8 !important;
+}
+
+/* --------------------------------------------------------
+   BRAND LOGO GRADIENT
+-------------------------------------------------------- */
+.brand-logo .brand {
+  background: linear-gradient(90deg, #d4fc79, #96e6a1);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  font-size: 24px;
+  font-weight: 900;
+  letter-spacing: .5px;
+  background-size: 200% auto;
+  animation: gradientFlow 6s linear infinite;
+}
+
+@keyframes gradientFlow {
+  0% { background-position: 0% center; }
+  100% { background-position: -200% center; }
+}
+
+/* --------------------------------------------------------
+   NAV BUTTONS
+-------------------------------------------------------- */
+.nav-btn {
+  padding: 6px 18px;
+  margin-left: 10px;
+  border-radius: 999px;
+  font-size: 16px;
+  font-weight: 600;
+  border: 2px solid #96e6a1;
+  color: #c7ffd6;
+  transition: .25s;
+}
+
+.nav-btn:hover {
+  background: rgba(150,230,161,.25);
+  backdrop-filter: blur(4px);
+  transform: translateY(-1px);
+}
+
+/* --------------------------------------------------------
+   HOME — TITLES
+-------------------------------------------------------- */
+.features-section .title {
+  font-size: 2.3rem;
+  font-weight: 700;
+  color: #ffffff;
+}
+
+.features-section .subtitle {
+  font-size: 1.2rem;
+  color: #e9fdee;
+  margin-bottom: 30px;
+}
+
+/* --------------------------------------------------------
+   HOME — GLASS BLOB CARDS
+-------------------------------------------------------- */
+.eco-blob-card {
+  background: rgba(255,255,255,.12);
+  border: 2px solid rgba(255,255,255,.45);
+  width: 260px;
+  height: 180px;
+  padding: 28px 18px;
+  text-align: center;
+  border-radius: 35% 65% 60% 40% / 45% 35% 65% 55%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  backdrop-filter: blur(8px);
+  transition: .35s;
+  box-shadow: 0 8px 22px rgba(0,0,0,.28);
+  cursor: pointer;
+  color: inherit;
+}
+
+.eco-blob-card h4 { color: #fff; }
+.eco-blob-card p { color: #e9fdee; }
+
+.eco-blob-card:hover {
+  background: rgba(255,255,255,.22);
+  border-color: rgba(255,255,255,.65);
+  transform: translateY(-8px) scale(1.03);
+  box-shadow: 0 18px 35px rgba(0,0,0,.35);
+}
+
+/* --------------------------------------------------------
+   HOME — FLEX ALIGNMENT
+-------------------------------------------------------- */
+.eco-horizontal {
+  display: flex;
+  justify-content: center;
+  gap: 28px;
+  flex-wrap: nowrap;
+  margin-top: 150px;
+}
+
+@media(max-width:900px) {
+  .eco-horizontal { flex-wrap: wrap; }
+}
+
+.eco-btn-wrapper {
+  display: flex;
+  justify-content: center;
+  margin-top: 150px;
+}
+
+/* --------------------------------------------------------
+   HOME — NEON CTA BUTTON
+-------------------------------------------------------- */
+.eco-cta-btn {
+  background: linear-gradient(135deg, #005eff, #00eaff);
+  color: #fff;
+  border: none;
+  padding: 14px 34px;
+  border-radius: 40px;
+  font-size: 19px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: .35s ease;
+  box-shadow: 0 0 12px rgba(0,200,255,.55), 0 0 22px rgba(0,200,255,.35);
+}
+
+.eco-cta-btn:hover {
+  transform: translateY(-4px) scale(1.04);
+  box-shadow: 0 0 16px rgba(0,200,255,.75), 0 0 32px rgba(0,200,255,.55);
+}
+
+/* --------------------------------------------------------
+   LOGIN + REGISTER — CARD ANIMATION
+-------------------------------------------------------- */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(40px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.auth-card {
+  animation: fadeUp .7s ease-out both;
+}
+
+/* Full screen gradient for login & register */
+body.auth-bg {
+  background: linear-gradient(135deg, #1f984f, #07674e, #0a6731);
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+}
+
+/* ======================================================
+   ROLE-BASED PAGE BACKGROUNDS (OUTER + INNER)
+   (Ensure body never forces white behind pages)
+====================================================== */
+
+body.admin-page,
+body.seller-page,
+body.user-page {
+  background-color: transparent !important;
+}
+
+/* ---------- ADMIN (orange) ---------- */
+body.admin-page .page-container {
+  min-height: 100vh;
+  background-color: #fcd9b0;
+}
+
+body.admin-page .page-content {
+  background: linear-gradient(135deg, #f9d3a6, #efa95a, #e98a3c);
+}
+
+app-navbar mat-toolbar {
+  background: rgba(255, 255, 255, 0.10) !important;
+  backdrop-filter: blur(14px) saturate(180%);
+  -webkit-backdrop-filter: blur(14px) saturate(180%);
+  box-shadow: none !important;
+}
+
+/*  Login effects   */
+/* Full-page blur (background only, never affects auth card) */
+body.blur-active #global-blur {
+  backdrop-filter: blur(15px);
+  -webkit-backdrop-filter: blur(15px);
+  background: transparent; /* NO dark layer */
+}
+
+/* Global blur overlay */
+#global-blur {
+  position: fixed;
+  inset: 0;
+  z-index: 1; /* LOWER so card is above */
+  pointer-events: none;
+  background: transparent;
+  backdrop-filter: none;
+  transition: backdrop-filter 0.3s ease;
+}
+
+/* Auth card stays sharp ALWAYS */
+.auth-card {
+  position: relative;
+  z-index: 10 !important; /* stays above blur */
+  background-color: rgba(255,255,255,0.3) !important; /* keep your original glass effect */
+  backdrop-filter: blur(20px); /* your existing style stays */
+}
+
+
+/*                       */
+/* biscuit card (INNER only) */
+.biscuit-card {
+  background: #f4e9d8; /* biscuit */
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(14, 17, 23, 0.08);
+  padding: 1rem;
+}
+
+/* keep previous body green as higher priority using !important on body */
+body.user-page {
+  background: linear-gradient(135deg, #4caf50 0%, #43a047 50%, #2e7d32 100%) !important;
+  background-attachment: fixed;
+  background-size: cover;
+}

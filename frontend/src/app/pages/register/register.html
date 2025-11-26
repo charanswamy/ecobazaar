@@ -1,0 +1,89 @@
+<!-- Wrapper -->
+<div class="auth-wrapper relative w-full h-screen flex items-center justify-center 
+            bg-gradient-to-br from-green-200 via-emerald-300 to-green-400 p-4">
+
+  <!-- AUTH CARD (Guide’s Card + your zoom + moved upward) -->
+  <div
+    class="auth-card w-full max-w-md rounded-3xl p-10
+           bg-white/90 backdrop-blur-xl border border-emerald-100
+           shadow-[0_4px_18px_rgba(0,0,0,0.20)]
+           scale-95 -translate-y-12
+           transform transition-all duration-500 ease-out
+           hover:scale-105 hover:shadow-[0_12px_40px_rgba(0,0,0,0.35)]
+           relative z-10"
+    (mouseenter)="activateBlur()"
+    (mouseleave)="deactivateBlur()">
+
+    <!-- Title -->
+    <h2 class="text-4xl font-bold mb-8 bg-gradient-to-r from-emerald-600 to-teal-600
+               bg-clip-text text-transparent text-center">
+      Create Account
+    </h2>
+
+    <!-- Form -->
+    <form [formGroup]="regForm" (ngSubmit)="submit()" class="space-y-6">
+
+      <!-- Full Name -->
+      <input 
+        class="w-full rounded-2xl border-2 border-green-800 px-6 py-4 text-lg bg-white/40
+               focus:border-green-900 focus:ring-2 focus:ring-green-600/60
+               focus:outline-none transition"
+        placeholder="Full Name"
+        formControlName="name"
+      />
+
+      <!-- Email -->
+      <input 
+        class="w-full rounded-2xl border-2 border-green-800 px-6 py-4 text-lg bg-white/40
+               focus:border-green-900 focus:ring-2 focus:ring-green-600/60
+               focus:outline-none transition"
+        placeholder="Email"
+        formControlName="email"
+      />
+
+      <!-- Password + Eye Icon -->
+      <div class="relative">
+        <input 
+          [type]="showPassword ? 'text' : 'password'"
+          formControlName="password"
+          placeholder="Password"
+          class="w-full rounded-2xl border-2 border-green-800 px-6 py-4 text-lg bg-white/40
+                 focus:border-green-900 focus:ring-2 focus:ring-green-600/60
+                 focus:outline-none transition pr-16"
+        />
+
+        <button 
+          type="button"
+          (click)="togglePassword()"
+          class="absolute right-4 top-1/2 -translate-y-1/2 text-gray-700 hover:text-black text-3xl leading-none">
+          
+          <span *ngIf="!showPassword">👁️</span>
+          <span *ngIf="showPassword">🙈</span>
+
+        </button>
+      </div>
+
+      <!-- Register Button -->
+      <button 
+        class="w-full rounded-2xl bg-green-600 py-5 text-xl font-bold text-white
+               hover:bg-green-700 disabled:bg-green-400 disabled:cursor-not-allowed
+               transition shadow-lg"
+        type="submit">
+        Register
+      </button>
+
+    </form>
+
+    <p class="mt-8 text-center text-gray-700 font-medium">
+      Already have an account?
+      <a routerLink="/login" class="font-bold text-green-700 hover:underline ml-1">
+        Login
+      </a>
+    </p>
+
+  </div>
+
+  <!-- GLOBAL BLUR OVERLAY -->
+  <div id="global-blur"></div>
+
+</div>

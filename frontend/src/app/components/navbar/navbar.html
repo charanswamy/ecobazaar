@@ -1,0 +1,148 @@
+<!-- GUIDED-STYLED NAVBAR (merged with your features) -->
+<mat-toolbar class="navbar glass-nav px-6 py-4 shadow-lg">
+
+
+  <div class="flex items-center justify-between w-full max-w-7xl mx-auto px-6">
+
+    <!-- LEFT: Logo -->
+    <a routerLink="/" class="flex items-center gap-3 group">
+      <!-- Replaced brand text with eco-animated-title -->
+      <div class="flex items-center gap-2">
+        <span class="icon text-xl md:text-2xl">♻</span>
+        <span class="brand eco-animated-title">EcoBazaar</span>
+      </div>
+    </a>
+
+    <!-- CENTER: Desktop Navigation (hidden on small screens) -->
+    <nav class="hidden lg:flex items-center gap-8 flex-1 justify-center">
+
+      <!-- Consumer -->
+      <ng-container *ngIf="auth.isUser() && !auth.isSeller() && !auth.isAdmin()">
+        <a routerLink="/products" routerLinkActive="active-link"
+           class="text-white/90 hover:text-white font-semibold text-lg transition-all duration-300">
+          Shop
+        </a>
+
+        <a routerLink="/cart" routerLinkActive="active-link"
+           class="text-white/90 hover:text-white font-semibold text-lg transition-all duration-300 relative">
+          Cart
+          <span *ngIf="cartCount > 0"
+                class="absolute -top-3 -right-6 bg-yellow-400 text-black text-xs font-bold px-3 py-1 rounded-full animate-pulse shadow-lg">
+            {{ cartCount }}
+          </span>
+        </a>
+
+        <a routerLink="/dashboard"
+           class="text-emerald-200 hover:text-white font-bold text-lg transition-all duration-300">
+          My Impact
+        </a>
+      </ng-container>
+
+      <!-- Seller -->
+      <ng-container *ngIf="auth.isSeller() && !auth.isAdmin()">
+        <a routerLink="/seller/dashboard"
+           class="text-emerald-200 hover:text-white font-bold text-lg transition-all duration-300">
+          Seller Hub
+        </a>
+      </ng-container>
+
+      <!-- Admin -->
+      <ng-container *ngIf="auth.isAdmin()">
+        <a routerLink="/admin"
+           class="bg-white/20 backdrop-blur-md text-white font-black px-6 py-2 rounded-full 
+                  hover:bg-white/30 border-2 border-white/50 transition-all duration-300">
+          Admin Panel
+        </a>
+      </ng-container>
+
+    </nav>
+
+    <!-- RIGHT: Guest / User controls -->
+    <div class="flex items-center gap-4">
+
+      <!-- Guest -->
+      <ng-container *ngIf="!auth.isLoggedIn()">
+        <button mat-stroked-button routerLink="/login"
+                class="border-2 border-white/50 text-white hover:bg-white/10 px-4 py-2 rounded-full font-semibold">
+          Login
+        </button>
+
+        <button mat-raised-button color="accent" routerLink="/register"
+                class="bg-white text-emerald-700 font-bold px-6 py-2 rounded-full hover:bg-emerald-50 shadow-lg">
+          Join Free
+        </button>
+
+        <!-- small dark mode toggle available for guests too -->
+        <button (click)="toggleTheme()"
+                class="ml-2 text-sm font-medium text-white/90 hover:text-white transition px-3 py-1.5 rounded-full border border-white/20"
+                aria-label="Toggle theme">
+          🌙
+        </button>
+      </ng-container>
+
+      <!-- Logged-in user -->
+      <ng-container *ngIf="auth.isLoggedIn()">
+        <div class="hidden md:flex items-center gap-4 border-l border-white/20 pl-4">
+          <div class="text-right">
+            <p class="text-white/80 text-xs md:text-sm">Welcome back</p>
+            <p class="font-bold text-white text-sm md:text-lg">{{ auth.getName() }}</p>
+          </div>
+
+          <!-- user menu trigger -->
+          <button mat-icon-button [matMenuTriggerFor]="userMenu" aria-label="Open user menu">
+            <mat-icon class="text-3xl text-white">account_circle</mat-icon>
+          </button>
+        </div>
+
+        <!-- mobile small controls (visible on small screens) -->
+        <div class="flex md:hidden items-center gap-2">
+          <button mat-icon-button [matMenuTriggerFor]="userMenu" aria-label="Open user menu">
+            <mat-icon class="text-white">menu</mat-icon>
+          </button>
+        </div>
+      </ng-container>
+    </div>
+  </div>
+</mat-toolbar>
+
+<!-- USER MENU (Material Menu) -->
+<mat-menu #userMenu="matMenu" class="mt-4">
+  <button mat-menu-item routerLink="/dashboard" *ngIf="auth.isUser() && !auth.isSeller()">
+    <mat-icon>dashboard</mat-icon>
+    <span>My Impact</span>
+  </button>
+
+  <button mat-menu-item routerLink="/seller/dashboard" *ngIf="auth.isSeller()">
+    <mat-icon>storefront</mat-icon>
+    <span>Seller Dashboard</span>
+  </button>
+
+  <button mat-menu-item routerLink="/admin" *ngIf="auth.isAdmin()">
+    <mat-icon>shield</mat-icon>
+    <span>Admin Panel</span>
+  </button>
+
+  <mat-divider></mat-divider>
+
+  <button mat-menu-item (click)="toggleTheme()">
+    <mat-icon>brightness_6</mat-icon>
+    <span>Toggle Theme</span>
+  </button>
+
+  <button mat-menu-item (click)="logout()">
+    <mat-icon>logout</mat-icon>
+    <span>Logout</span>
+  </button>
+</mat-menu>
+
+<!-- TOP PAGE WRAPPER (hero + orbs) - keep just one wrapper below the toolbar -->
+<div class="pt-16 min-h-screen relative overflow-hidden">
+  <!-- Floating Eco Orbs (these will be suppressed when body.landing-bg is active via styles.scss) -->
+  <div class="absolute inset-0 -z-10 pointer-events-none">
+    <div class="absolute top-10 -left-20 w-96 h-96 bg-emerald-400/25 rounded-full blur-3xl animate-pulse"></div>
+    <div class="absolute bottom-0 right-0 w-80 h-80 bg-teal-500/20 rounded-full blur-3xl animate-pulse delay-1000"></div>
+    <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-72 h-72 bg-lime-400/15 rounded-full blur-3xl animate-pulse delay-500"></div>
+  </div>
+
+  <router-outlet></router-outlet>
+</div>
