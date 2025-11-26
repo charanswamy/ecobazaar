@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.*;
 
 import com.ecobazaar.ecobazaar.model.Product;
 import com.ecobazaar.ecobazaar.model.User;
+import com.ecobazaar.ecobazaar.repository.ProductRepository;
 import com.ecobazaar.ecobazaar.repository.UserRepository;
 import com.ecobazaar.ecobazaar.service.ProductService;
 
@@ -15,12 +16,14 @@ import com.ecobazaar.ecobazaar.service.ProductService;
 @RequestMapping("/api/products")
 public class ProductController {
 
+    private final ProductRepository productRepository;
     private final ProductService productService;
     private final UserRepository userRepository;
 
-    public ProductController(ProductService productService, UserRepository userRepository) {
+    public ProductController(ProductService productService, UserRepository userRepository, ProductRepository productRepository) {
         this.productService = productService;
         this.userRepository = userRepository;
+        this.productRepository = productRepository;
     }
 
     @PreAuthorize("hasAnyRole('SELLER','ADMIN')")
@@ -29,35 +32,91 @@ public class ProductController {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         String email = auth.getName();
         User seller = userRepository.findByEmail(email)
-            .orElseThrow(() -> new RuntimeException("Seller not found"));
-        product.setSellerId(seller.getId());
+                .orElseThrow(() -> new RuntimeException("Seller not found"));
+
+        product.setSeller(seller);
+
         return productService.createProduct(product);
     }
 
+ 
+ // public marketplace -> show ALL products (including non-certified)
     @GetMapping
     public List<Product> listAllProducts() {
         return productService.getAllProducts();
     }
 
+
+    @PreAuthorize("hasAnyRole('SELLER','ADMIN')")
+    @GetMapping("/seller")
+    public List<Product> listSellerProducts() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        String email = auth.getName();
+        User seller = userRepository.findByEmail(email).orElseThrow(() -> new RuntimeException("Seller not found"));
+        return productService.getProductsBySellerId(seller.getId());
+    }
+
+    @GetMapping("/{id}")
+    public Product getProductById(@PathVariable Long id) {
+        return productService.getProductById(id);
+    }
+
     @PreAuthorize("hasAnyRole('SELLER','ADMIN')")
     @PutMapping("/{id}")
-    public Product updateProductDetails(@PathVariable Long id, @RequestBody Product product) {
-        return productService.updateProductDetails(id, product);
+    public Product updateProductDetails(@PathVariable Long id, @RequestBody Product incoming, Authentication auth) {
+        String email = auth.getName();
+        User current = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        Product existing = productService.getProductById(id);
+
+        boolean isAdmin = current.getRole() != null && current.getRole().toUpperCase().contains("ADMIN");
+        if (!isAdmin) {
+            if (existing.getSeller() == null || existing.getSeller().getId() != current.getId()) {
+                throw new org.springframework.security.access.AccessDeniedException("You are not the owner of this product");
+            }
+        }
+
+        existing.setName(incoming.getName());
+        existing.setDetails(incoming.getDetails());
+        existing.setPrice(incoming.getPrice());
+        existing.setCarbonImpact(incoming.getCarbonImpact());
+        existing.setImageUrl(incoming.getImageUrl());
+        existing.setEcoRequested(incoming.getEcoRequested() == null ? existing.isEcoRequested() : incoming.getEcoRequested());
+
+        return productService.saveProduct(existing); // create a small save wrapper in service (see below)
     }
+
 
     @PreAuthorize("hasAnyRole('SELLER','ADMIN')")
     @DeleteMapping("/{id}")
     public void deleteProductDetails(@PathVariable Long id) {
         productService.deleteProductDetails(id);
     }
+    
+    @GetMapping("/ai/suggestions")
+    @PreAuthorize("hasRole('USER')")  
+    public List<Product> getAiEcoSuggestions(@RequestParam("productId") Long productId) {
+        Product current = productService.getProductById(productId);
 
-    @GetMapping("/eco")
-    public List<Product> getEcoCertified() {
-        return productService.getEcoCertifiedProducts();
+        if (Boolean.TRUE.equals(current.getEcoCertified())) {
+            return List.of();
+        }
+
+        String searchTerm = extractKeyword(current.getName());
+
+        return productRepository.findByEcoCertifiedTrueAndNameContainingIgnoreCase(searchTerm)
+                .stream()
+                .filter(p -> !p.getId().equals(productId))
+                .limit(4)
+                .toList();
     }
 
-    @GetMapping("/eco/sorted")
-    public List<Product> getEcoCertifiedSorted() {
-        return productService.getEcoCertifiedSortedByCarbonImpact();
+    private String extractKeyword(String name) {
+        if (name == null || name.isBlank()) return "";
+        String[] words = name.toLowerCase().split("\\s+");
+        return words.length > 0 ? words[words.length - 1].replaceAll("[^a-z]", "") : "";
     }
 }
+
+

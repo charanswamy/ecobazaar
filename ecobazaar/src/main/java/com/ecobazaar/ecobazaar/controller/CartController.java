@@ -1,16 +1,18 @@
 package com.ecobazaar.ecobazaar.controller;
 
-import java.util.List;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.web.bind.annotation.*;
-
 import com.ecobazaar.ecobazaar.dto.CartSummaryDto;
 import com.ecobazaar.ecobazaar.model.CartItem;
 import com.ecobazaar.ecobazaar.model.User;
 import com.ecobazaar.ecobazaar.repository.UserRepository;
 import com.ecobazaar.ecobazaar.service.CartService;
+
+import java.util.HashMap;
+import java.util.Map;
+
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/cart")
@@ -26,29 +28,49 @@ public class CartController {
 
     @PreAuthorize("hasRole('USER')")
     @PostMapping
-    public CartItem addToCart(@RequestBody CartItem cartItem) {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        String email = auth.getName();
-        User currentUser = userRepository.findByEmail(email)
-            .orElseThrow(() -> new RuntimeException("User not found"));
-        cartItem.setUserId(currentUser.getId());
+    public CartItem addToCart(@RequestBody CartItem cartItem, Authentication auth) {
+        User user = userRepository.findByEmail(auth.getName())
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        cartItem.setUserId(user.getId());
         return cartService.addToCart(cartItem);
     }
 
     @PreAuthorize("hasRole('USER')")
-    @GetMapping
-    public CartSummaryDto getCartSummary() {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        String email = auth.getName();
-        User currentUser = userRepository.findByEmail(email)
-            .orElseThrow(() -> new RuntimeException("User not found"));
-        return cartService.getCartSummary(currentUser.getId());
+    @GetMapping("/summary")
+    public CartSummaryDto getCartSummary(Authentication auth) {
+        User user = userRepository.findByEmail(auth.getName())
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        return cartService.getCartSummary(user.getId());
     }
 
     @PreAuthorize("hasRole('USER')")
     @DeleteMapping("/{id}")
-    public String removeFromCart(@PathVariable Long id) {
-        cartService.removeFromCart(id);
-        return "Item Removed from Cart!";
+    public ResponseEntity<Map<String, String>> removeFromCart(@PathVariable Long id, Authentication auth) {
+        User user = userRepository.findByEmail(auth.getName())
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        Map<String, String> response = new HashMap<>();
+        
+        try {
+            cartService.removeFromCart(id, user.getId());
+            response.put("message", "Item removed from cart");
+            return ResponseEntity.ok(response);
+        } catch (RuntimeException e) {
+            if (e.getMessage().contains("not found") || e.getMessage().contains("Unauthorized")) {
+                response.put("message", "Item not found or already removed");
+                return ResponseEntity.status(404).body(response);  // 404 instead of 500
+            }
+            throw e;
+        }
+    }
+
+    @PreAuthorize("hasRole('USER')")
+    @PostMapping("/swap")
+    public void swapToEco(@RequestBody SwapRequest request, Authentication auth) {
+        User user = userRepository.findByEmail(auth.getName())
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        cartService.swapToEco(user.getId(), request.cartItemId(), request.newProductId());
     }
 }
+
+record SwapRequest(Long cartItemId, Long newProductId) {}
