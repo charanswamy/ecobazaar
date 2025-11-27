@@ -29,8 +29,8 @@ public class AdminService {
     public Product approveProduct(Long id) {
         return productRepository.findById(id)
             .map(p -> {
-                p.setEcoCertified(true);   // <= ADMIN APPROVES
-                p.setEcoRequested(false);  // <= clear request
+                p.setEcoCertified(true);  
+                p.setEcoRequested(false); 
                 return productRepository.save(p);
             })
             .orElseThrow(() -> new RuntimeException("Product not found with id: " + id));
@@ -49,12 +49,24 @@ public class AdminService {
         return userRepository.findAll();
     }
 
+    // ========================= FIXED NULL-SAFE REPORT =========================
     public Map<String, Object> getAdminReport(){
         List<Order> orders = orderRepository.findAll();
 
-        double totalCarbonUsed = orders.stream().mapToDouble(Order::getCarbonUsed).sum();
-        double totalCarbonSaved = orders.stream().mapToDouble(Order::getCarbonSaved).sum();
-        double totalRevenue = orders.stream().mapToDouble(Order::getTotalPrice).sum();
+        double totalCarbonUsed = orders.stream()
+                .map(o -> o.getCarbonUsed() == null ? 0.0 : o.getCarbonUsed())
+                .mapToDouble(Double::doubleValue)
+                .sum();
+
+        double totalCarbonSaved = orders.stream()
+                .map(o -> o.getCarbonSaved() == null ? 0.0 : o.getCarbonSaved())
+                .mapToDouble(Double::doubleValue)
+                .sum();
+
+        double totalRevenue = orders.stream()
+                .map(o -> o.getTotalPrice() == null ? 0.0 : o.getTotalPrice())
+                .mapToDouble(Double::doubleValue)
+                .sum();
 
         Map<String, Object> report = new HashMap<>();
         report.put("totalOrders", orders.size());
@@ -76,9 +88,9 @@ public class AdminService {
         for (Order o : orders) {
             csv.append(o.getId()).append(",")
                .append(o.getUserId()).append(",")
-               .append(o.getTotalPrice()).append(",")
-               .append(o.getCarbonUsed()).append(",")
-               .append(o.getCarbonSaved()).append(",")
+               .append(o.getTotalPrice() == null ? "0" : o.getTotalPrice()).append(",")
+               .append(o.getCarbonUsed() == null ? "0" : o.getCarbonUsed()).append(",")
+               .append(o.getCarbonSaved() == null ? "0" : o.getCarbonSaved()).append(",")
                .append(o.getOrderDate()).append("\n");
         }
         return csv.toString();

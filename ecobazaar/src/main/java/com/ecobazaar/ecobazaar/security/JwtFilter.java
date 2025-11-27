@@ -24,76 +24,81 @@ import java.util.List;
 
 @Component
 public class JwtFilter extends OncePerRequestFilter {
+
     private static final Logger log = LoggerFactory.getLogger(JwtFilter.class);
+
     private final JwtUtil jwtUtil;
 
-    public JwtFilter(JwtUtil jwtUtil) { this.jwtUtil = jwtUtil; }
+    public JwtFilter(JwtUtil jwtUtil) {
+        this.jwtUtil = jwtUtil;
+    }
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
             throws ServletException, IOException {
 
-        final String path = request.getRequestURI();
+        String path = request.getServletPath();
+        String method = request.getMethod();
 
-        if (path.startsWith("/api/auth/") || path.startsWith("/v3/api-docs") || path.startsWith("/swagger-ui")) {
-            chain.doFilter(request, response); return;
-        }
-        if ("GET".equalsIgnoreCase(request.getMethod())) {
-            if (path.equals("/api/products") || path.matches("^/api/products/\\d+$")) {
-                chain.doFilter(request, response); return;
-            }
-        }
-
-        final String authHeader = request.getHeader("Authorization");
-        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-            chain.doFilter(request, response); return;
+        // 1️⃣ Public URLs (NO AUTH REQUIRED)
+        if (path.startsWith("/api/auth/")
+                || (method.equals("GET") && path.equals("/api/products"))
+                || (method.equals("GET") && path.matches("^/api/products/\\d+$"))
+        ) {
+            chain.doFilter(request, response);
+            return;
         }
 
-        final String token = authHeader.substring(7);
+        // 2️⃣ Check Authorization header
+        String header = request.getHeader("Authorization");
+        if (header == null || !header.startsWith("Bearer ")) {
+            chain.doFilter(request, response);
+            return;
+        }
+
+        String token = header.substring(7);
 
         try {
             if (!jwtUtil.validateToken(token)) {
-                log.warn("JWT validation failed for path {}", path);
-                chain.doFilter(request, response); return;
+                chain.doFilter(request, response);
+                return;
             }
 
             Claims claims = jwtUtil.getClaims(token);
             String email = claims.getSubject();
-            Collection<SimpleGrantedAuthority> authorities = extractAuthorities(claims);
 
-            var authentication = new UsernamePasswordAuthenticationToken(email, null, authorities);
-            authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-            SecurityContextHolder.getContext().setAuthentication(authentication);
+            Collection<SimpleGrantedAuthority> roles = extractRoles(claims);
 
-            log.info("Authenticated {} with authorities {} for {}", email, authorities, path);
+            UsernamePasswordAuthenticationToken auth =
+                    new UsernamePasswordAuthenticationToken(email, null, roles);
+
+            auth.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+            SecurityContextHolder.getContext().setAuthentication(auth);
+
         } catch (ExpiredJwtException e) {
-            log.warn("Expired JWT for subject={} path={}", e.getClaims() != null ? e.getClaims().getSubject() : "unknown", path);
-        } catch (JwtException | IllegalArgumentException e) {
-            log.warn("Invalid JWT: {} path={}", e.getMessage(), path);
-        } catch (Exception e) {
-            log.warn("JWT processing error: {} path={}", e.getMessage(), path);
+            log.warn("Expired token");
+        } catch (JwtException e) {
+            log.warn("Invalid token");
         }
 
         chain.doFilter(request, response);
     }
 
-    private Collection<SimpleGrantedAuthority> extractAuthorities(Claims claims) {
-        List<SimpleGrantedAuthority> result = new ArrayList<>();
-        Object rolesObj = claims.get("roles");
-        if (rolesObj instanceof List<?> list) {
-            for (Object o : list) result.add(new SimpleGrantedAuthority(normalizeRole(String.valueOf(o))));
-        }
-        String singleRole = claims.get("role", String.class);
-        if (singleRole != null && !singleRole.isBlank()) {
-            result.add(new SimpleGrantedAuthority(normalizeRole(singleRole)));
-        }
-        if (result.isEmpty()) result.add(new SimpleGrantedAuthority("ROLE_USER"));
-        return result;
-    }
+    private Collection<SimpleGrantedAuthority> extractRoles(Claims claims) {
+        List<SimpleGrantedAuthority> list = new ArrayList<>();
 
-    private String normalizeRole(String role) {
-        if (role == null || role.isBlank()) return "ROLE_USER";
-        role = role.trim().toUpperCase();
-        return role.startsWith("ROLE_") ? role : "ROLE_" + role;
+        Object rolesObj = claims.get("roles");
+        if (rolesObj instanceof List<?> roles) {
+            for (Object r : roles) {
+                list.add(new SimpleGrantedAuthority(r.toString()));
+            }
+        }
+
+        String singleRole = claims.get("role", String.class);
+        if (singleRole != null) {
+            list.add(new SimpleGrantedAuthority(singleRole));
+        }
+
+        return list;
     }
 }

@@ -1,5 +1,6 @@
 package com.ecobazaar.ecobazaar.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -7,103 +8,83 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 @Entity
 @Table(name="users")
 public class User {
-	
-	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private long id;
-	
-	@Column(nullable = false)
-	private String name;
-	
-	@Column(unique = true, nullable = false)
-	private String email;
-	
-	@Column(nullable = false)
-	private String password;
-	
-	
-	private String role;
-	
-	
-	private Integer ecoScore;
-	
-	private boolean sellerRequestPending = false;
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private long id;
 
-	public boolean isSellerRequestPending() {
-		return sellerRequestPending;
-	}
+    @Column(nullable = false)
+    private String name;
 
+    @Column(unique = true, nullable = false)
+    private String email;
 
-	public void setSellerRequestPending(boolean sellerRequestPending) {
-		this.sellerRequestPending = sellerRequestPending;
-	}
+    @Column(nullable = false)
+    private String password;
 
+    private String role;
 
-	public long getId() {
-		return id;
-	}
+    private Integer ecoScore;
 
+    private boolean sellerRequestPending = false;
 
-	public void setId(long id) {
-		this.id = id;
-	}
+    public boolean isSellerRequestPending() {
+        return sellerRequestPending;
+    }
 
+    public void setSellerRequestPending(boolean sellerRequestPending) {
+        this.sellerRequestPending = sellerRequestPending;
+    }
 
-	public String getName() {
-		return name;
-	}
+    public long getId() {
+        return id;
+    }
 
+    public void setId(long id) {
+        this.id = id;
+    }
 
-	public void setName(String name) {
-		this.name = name;
-	}
+    public String getName() {
+        return name;
+    }
 
+    public void setName(String name) {
+        this.name = name;
+    }
 
-	public String getEmail() {
-		return email;
-	}
+    public String getEmail() {
+        return email;
+    }
 
+    public void setEmail(String email) {
+        this.email = email;
+    }
 
-	public void setEmail(String email) {
-		this.email = email;
-	}
+    public String getPassword() {
+        return password;
+    }
 
+    public void setPassword(String password) {
+        this.password = password;
+    }
 
-	public String getPassword() {
-		return password;
-	}
+    public String getRole() {
+        return role;
+    }
 
+    public void setRole(String role) {
+        this.role = role;
+    }
 
-	public void setPassword(String password) {
-		this.password = password;
-	}
+    public Integer getEcoScore() {
+        return ecoScore;
+    }
 
-
-	public String getRole() {
-		return role;
-	}
-
-
-	public void setRole(String role) {
-		this.role = role;
-	}
-
-
-	public Integer getEcoScore() {
-		return ecoScore;
-	}
-
-
-	public void setEcoScore(Integer ecoScore) {
-		this.ecoScore = ecoScore;
-	}
-
-	
-	
-	
-
+    public void setEcoScore(Integer ecoScore) {
+        this.ecoScore = ecoScore;
+    }
 }
