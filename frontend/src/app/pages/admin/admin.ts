@@ -116,18 +116,18 @@ export class Admin implements OnInit {
   }
 
   approveProduct(id: number): void {
-    if (this.processing.has(id)) return;
-    this.processing.add(id);
+  if (this.processing.has(id)) return;
+  this.processing.add(id);
 
-    this.http.put(`/api/admin/approveProduct/${id}`, {}).subscribe({
-      next: () => {
-        this.toastr.success('Eco Product Certified');
-        this.loadAllData();
-      },
-      error: () => this.toastr.error('Failed'),
-      complete: () => this.processing.delete(id)
-    });
-  }
+  this.http.put(`/api/admin/approveProduct/${id}`, {}).subscribe({
+    next: () => {
+      this.toastr.success('Eco Product Certified');
+      this.loadAllData();
+    },
+    error: () => this.toastr.error('Failed'),
+    complete: () => this.processing.delete(id)
+  });
+}
 
   rejectProduct(id: number): void {
     if (this.processing.has(id)) return;
@@ -159,32 +159,32 @@ export class Admin implements OnInit {
   }
 
   approveAdminRequest(id: number): void {
-    if (this.processing.has(id)) return;
-    this.processing.add(id);
+  if (this.processing.has(id)) return;
+  this.processing.add(id);
 
-    this.http.post(`/api/admin-request/approve/${id}`, {}).subscribe({
-      next: () => {
-        this.toastr.success('New Admin Added');
-        this.loadAllData();
-      },
-      error: () => this.toastr.error('Failed'),
-      complete: () => this.processing.delete(id)
-    });
-  }
+  this.http.post(`/api/admin-request/approve/${id}`, {}).subscribe({
+    next: () => {
+      this.toastr.success('New Admin Added');
+      this.loadAllData();
+    },
+    error: () => this.toastr.error('Failed'),
+    complete: () => this.processing.delete(id)
+  });
+}
 
-  rejectAdminRequest(id: number): void {
-    if (this.processing.has(id)) return;
-    this.processing.add(id);
+rejectAdminRequest(id: number): void {
+  if (this.processing.has(id)) return;
+  this.processing.add(id);
 
-    this.http.post(`/api/admin-request/reject/${id}`, {}).subscribe({
-      next: () => {
-        this.toastr.success('Request Rejected');
-        this.loadAllData();
-      },
-      error: () => this.toastr.error('Failed'),
-      complete: () => this.processing.delete(id)
-    });
-  }
+  this.http.post(`/api/admin-request/reject/${id}`, {}).subscribe({
+    next: () => {
+      this.toastr.success('Request Rejected');
+      this.loadAllData();
+    },
+    error: () => this.toastr.error('Failed'),
+    complete: () => this.processing.delete(id)
+  });
+}
 
   downloadCsv(): void {
     const token = localStorage.getItem('token');

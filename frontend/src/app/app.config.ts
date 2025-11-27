@@ -9,14 +9,21 @@ import { NgChartsModule } from 'ng2-charts';
 import { ToastrModule } from 'ngx-toastr';
 import { NgxSpinnerModule } from 'ngx-spinner';
 
+// Interceptors
 import { AuthInterceptor } from './interceptors/auth.interceptor';
 import { ErrorInterceptor } from './interceptors/error.interceptor';
 import { LoadingInterceptor } from './interceptors/loading.interceptor';
 
 export const appConfig: ApplicationConfig = {
   providers: [
+
+    // Routing
     provideRouter(routes),
+
+    // Animations
     provideAnimations(),
+
+    // ✅ HttpClient + Interceptors (version-independent, stable)
     provideHttpClient(
       withInterceptors([
         LoadingInterceptor,
@@ -24,6 +31,8 @@ export const appConfig: ApplicationConfig = {
         ErrorInterceptor
       ])
     ),
+
+    // Third-party modules
     importProvidersFrom(
       NgChartsModule,
       NgxSpinnerModule,
