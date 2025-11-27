@@ -99,7 +99,8 @@ export class Dashboard implements OnInit, AfterViewInit, OnDestroy {
     // Using setTimeout(0) occasionally fails; 120-200ms is more robust across devices.
     setTimeout(() => {
       requestAnimationFrame(() => {
-        this.tryInitCharts(true);
+        setTimeout(() => this.tryInitCharts(true), 60);
+
       });
     }, 150);
   }
@@ -139,7 +140,8 @@ export class Dashboard implements OnInit, AfterViewInit, OnDestroy {
         this.report = res;
 
         // ensure charts attempt to initialize (force re-create if necessary)
-        this.tryInitCharts(true);
+        setTimeout(() => this.tryInitCharts(true), 60);
+
       });
   }
 
